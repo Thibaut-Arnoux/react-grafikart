@@ -1,37 +1,30 @@
 import { useState } from 'react';
 
 function App() {
-    // controlled input
-    // const [firstname, setFirstname] = useState('John');
-
-    // uncontrolled input
-    const firstname = 'John';
-
-    // controlled input
-    // const handleChange = (event) => {
-    //     setFirstname(event.target.value);
-    // };
-
-    // uncontrolled input
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        console.log(formData.get('firstname'));
-    };
-
-    console.log('rendered');
+    const [isTermAccepted, setIsTermAccepted] = useState(false);
 
     return (
         <>
-            <form onSubmit={handleSubmit}>
-                {/* controlled input */}
-                {/* <input type="text" name="firstname" value={firstname} onChange={handleChange} /> */}
-
-                {/* uncontrolled input */}
-                <input type="text" name="firstname" defaultValue={firstname} />
-                <button>Envoyer</button>
+            <form>
+                <CGUCheckbox checked={isTermAccepted} onCheck={setIsTermAccepted} />
+                <button disabled={!isTermAccepted}>Envoyer le formulaire</button>
             </form>
         </>
+    );
+}
+
+function CGUCheckbox({ checked, onCheck }) {
+    return (
+        <div>
+            <label>
+                <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={(e) => onCheck(e.target.checked)}
+                />
+                Accepter les conditions d'utilisation
+            </label>
+        </div>
     );
 }
 
