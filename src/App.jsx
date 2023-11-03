@@ -1,33 +1,36 @@
 import { useState } from 'react';
 
 function App() {
-    const [count, setCount] = useState(0);
-    const [person, setPerson] = useState({
-        firstname: 'John',
-        lastname: 'Doe',
-        age: 18
-    });
+    // controlled input
+    // const [firstname, setFirstname] = useState('John');
 
-    const handleIncrementCount = () => {
-        setCount((count) => count + 1);
-        setCount((count) => count + 1);
+    // uncontrolled input
+    const firstname = 'John';
+
+    // controlled input
+    // const handleChange = (event) => {
+    //     setFirstname(event.target.value);
+    // };
+
+    // uncontrolled input
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        console.log(formData.get('firstname'));
     };
 
-    const handleIncrementAge = () => {
-        setPerson({ ...person, age: person.age + 1 });
-    };
+    console.log('rendered');
 
     return (
         <>
-            <p>Compteur: {count}</p>
-            <button onClick={handleIncrementCount}>Incrémenter de 2 en 2</button>
-            <hr />
-            <p>
-                Age de {person.firstname} : {person.age}
-            </p>
-            <button onClick={handleIncrementAge}>
-                Veillir {person.firstname} {person.lastname}
-            </button>
+            <form onSubmit={handleSubmit}>
+                {/* controlled input */}
+                {/* <input type="text" name="firstname" value={firstname} onChange={handleChange} /> */}
+
+                {/* uncontrolled input */}
+                <input type="text" name="firstname" defaultValue={firstname} />
+                <button>Envoyer</button>
+            </form>
         </>
     );
 }
