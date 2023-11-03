@@ -1,29 +1,34 @@
+import { useState } from 'react';
+
 function App() {
-    const myList = ['Item 1', 'Item 2', 'Item 3'];
+    const [count, setCount] = useState(0);
+    const [person, setPerson] = useState({
+        firstname: 'John',
+        lastname: 'Doe',
+        age: 18
+    });
+
+    const handleIncrementCount = () => {
+        setCount((count) => count + 1);
+        setCount((count) => count + 1);
+    };
+
+    const handleIncrementAge = () => {
+        setPerson({ ...person, age: person.age + 1 });
+    };
 
     return (
         <>
-            <Title id="myId" className="myClass" color="blue">
-                Mon premier composant
-            </Title>
-            <ul>
-                {myList.map((item) => (
-                    <li key={item}>{item}</li>
-                ))}
-            </ul>
+            <p>Compteur: {count}</p>
+            <button onClick={handleIncrementCount}>Incrémenter de 2 en 2</button>
+            <hr />
+            <p>
+                Age de {person.firstname} : {person.age}
+            </p>
+            <button onClick={handleIncrementAge}>
+                Veillir {person.firstname} {person.lastname}
+            </button>
         </>
-    );
-}
-
-function Title({ color, hidden, children, ...props }) {
-    if (hidden) {
-        return null;
-    }
-
-    return (
-        <h1 style={{ color: color }} {...props}>
-            {children}
-        </h1>
     );
 }
 
