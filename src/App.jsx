@@ -1,110 +1,68 @@
-import { useState } from 'react';
-import { Checkbox } from './components/forms/Checkbox';
+import { useEffect, useState } from 'react';
 import { Input } from './components/forms/Input';
-import { ProductCategoryRow } from './components/products/ProductCategoryRow';
-import { ProductRow } from './components/products/ProductRow';
-import { Range } from './components/forms/Range';
-
-const PRODUCTS = [
-    { category: 'Fruits', price: 1, stocked: true, name: 'Apple' },
-    { category: 'Fruits', price: 1, stocked: true, name: 'Dragonfruit' },
-    { category: 'Fruits', price: 2, stocked: false, name: 'Passionfruit' },
-    { category: 'Vegetables', price: 2, stocked: true, name: 'Spinach' },
-    { category: 'Vegetables', price: 4, stocked: false, name: 'Pumpkin' },
-    { category: 'Vegetables', price: 1, stocked: true, name: 'Peas' }
-];
+import { Checkbox } from './components/forms/Checkbox';
 
 function App() {
-    const [showStockedOnly, setShowStockedOnly] = useState(false);
-    const [search, setSearch] = useState('');
-    const [price, setPrice] = useState(5);
+    const [showInput, setShowInput] = useState(false);
+    const [duration, setDuration] = useState(5);
+    const [secondLeft, setSecondLeft] = useState(duration);
 
-    // derivated value
-    const visibleProducts = PRODUCTS.filter((product) => {
-        if (showStockedOnly && !product.stocked) {
-            return false;
-        }
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setSecondLeft((s) => {
+                if (s <= 0) {
+                    clearInterval(timer);
+                    return 0;
+                }
+                return s - 1;
+            });
+        }, 100);
 
-        if (search && !product.name.includes(search)) {
-            return false;
-        }
+        return () => {
+            clearInterval(timer);
+        };
+    }, [duration]);
 
-        if (price && product.price > price) {
-            return false;
-        }
-
-        return true;
-    });
+    const handleChange = (v) => {
+        setDuration(v);
+        setSecondLeft(v);
+    };
 
     return (
-        <div className="container my-3">
-            <SearchBar
-                showStockedOnly={showStockedOnly}
-                search={search}
-                price={price}
-                onStockedOnlyChange={setShowStockedOnly}
-                onSearchChange={setSearch}
-                onPriceChange={setPrice}
+        <div className="vstack gap-2">
+            <Checkbox
+                id="title"
+                label="Afficher le champ titre"
+                checked={showInput}
+                onChange={setShowInput}
             />
-            <ProductTable products={visibleProducts} showStockedOnly={showStockedOnly} />
+            {showInput && <EditTitle />}
+            <Input placeholder="Timer..." value={duration} onChange={handleChange} />
+            <p>Décompte : {secondLeft}</p>
         </div>
     );
 }
 
-function SearchBar({
-    showStockedOnly,
-    search,
-    price,
-    onStockedOnlyChange,
-    onSearchChange,
-    onPriceChange
-}) {
+function EditTitle() {
+    const [title, setTitle] = useState('');
+
+    useEffect(() => {
+        const originalTitle = document.title;
+
+        return () => {
+            document.title = originalTitle;
+        };
+    }, []);
+
+    useEffect(() => {
+        document.title = title;
+    }, [title]);
+
     return (
-        <div>
-            <div className="mb-3">
-                <Input placeholder="Rechercher..." value={search} onChange={onSearchChange} />
-                <Checkbox
-                    id="stocked"
-                    label="N'afficher que les produits en stock"
-                    checked={showStockedOnly}
-                    onChange={onStockedOnlyChange}
-                />
-                <Range
-                    id="price"
-                    label={`Prix : ${price}`}
-                    value={price}
-                    min={0}
-                    max={5}
-                    onChange={onPriceChange}
-                />
-            </div>
-        </div>
+        <>
+            <Input placeholder="Modifier le titre" value={title} onChange={setTitle} />
+        </>
     );
 }
 
-function ProductTable({ products }) {
-    const rows = [];
-    let lastCategory = null;
-
-    products.forEach((product) => {
-        if (product.category != lastCategory) {
-            rows.push(<ProductCategoryRow key={product.category} name={product.category} />);
-        }
-        lastCategory = product.category;
-
-        rows.push(<ProductRow key={product.name} product={product} />);
-    });
-
-    return (
-        <table className="table">
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Prix</th>
-                </tr>
-            </thead>
-            <tbody>{rows}</tbody>
-        </table>
-    );
-}
 export default App;
