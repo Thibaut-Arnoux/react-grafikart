@@ -1,68 +1,38 @@
-import { useEffect, useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Input } from './components/forms/Input';
-import { Checkbox } from './components/forms/Checkbox';
 
 function App() {
-    const [showInput, setShowInput] = useState(false);
-    const [duration, setDuration] = useState(5);
-    const [secondLeft, setSecondLeft] = useState(duration);
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setSecondLeft((s) => {
-                if (s <= 0) {
-                    clearInterval(timer);
-                    return 0;
-                }
-                return s - 1;
-            });
-        }, 100);
-
-        return () => {
-            clearInterval(timer);
-        };
-    }, [duration]);
-
-    const handleChange = (v) => {
-        setDuration(v);
-        setSecondLeft(v);
-    };
+    const [firstname, setFirstname] = useState('John');
+    const [password, setPassword] = useState('MotdePasse');
+    const random = useMemo(() => {
+        return Math.random();
+    }, []);
+    const security = useMemo(() => {
+        return passwordSecurity(password);
+    }, [password]);
 
     return (
-        <div className="vstack gap-2">
-            <Checkbox
-                id="title"
-                label="Afficher le champ titre"
-                checked={showInput}
-                onChange={setShowInput}
-            />
-            {showInput && <EditTitle />}
-            <Input placeholder="Timer..." value={duration} onChange={handleChange} />
-            <p>Décompte : {secondLeft}</p>
+        <div className="container my-v3 vstack gap-2">
+            Random : {random}
+            <Input label="Nom d'utilisateur" value={firstname} onChange={setFirstname} />
+            <Input label="Password" value={password} onChange={setPassword} />
+            Sécurité: {security}
         </div>
     );
 }
 
-function EditTitle() {
-    const [title, setTitle] = useState('');
+function passwordSecurity(password) {
+    // Fake latency
+    let startTime = performance.now();
+    while (performance.now() - startTime < 200) {}
 
-    useEffect(() => {
-        const originalTitle = document.title;
+    if (password.length < 3) {
+        return 'Faible';
+    } else if (password.length < 6) {
+        return 'Moyen';
+    }
 
-        return () => {
-            document.title = originalTitle;
-        };
-    }, []);
-
-    useEffect(() => {
-        document.title = title;
-    }, [title]);
-
-    return (
-        <>
-            <Input placeholder="Modifier le titre" value={title} onChange={setTitle} />
-        </>
-    );
+    return 'Fort';
 }
 
 export default App;
