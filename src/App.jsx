@@ -1,38 +1,57 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Input } from './components/forms/Input';
+import { useIncrement } from './hooks/useIncrement';
+import { useToggle } from './hooks/useToggle';
+import { useDocumentTitle } from './hooks/useDocumentTitle';
+import { useFetch } from './hooks/useFetch';
 
 function App() {
-    const [firstname, setFirstname] = useState('John');
-    const [password, setPassword] = useState('MotdePasse');
-    const random = useMemo(() => {
-        return Math.random();
-    }, []);
-    const security = useMemo(() => {
-        return passwordSecurity(password);
-    }, [password]);
+    const [checked, setChecked] = useToggle();
+    const { count, increment, decrement } = useIncrement({
+        base: 0,
+        min: -10,
+        max: 10
+    });
+    const [title, setTitle] = useState('');
+    useDocumentTitle(title ? `Editer ${title}` : null);
+
+    const { data, loading, errors } = useFetch(
+        'https://jsonplaceholder.typicode.com/posts?_limit=10&_delay=5000'
+    );
 
     return (
-        <div className="container my-v3 vstack gap-2">
-            Random : {random}
-            <Input label="Nom d'utilisateur" value={firstname} onChange={setFirstname} />
-            <Input label="Password" value={password} onChange={setPassword} />
-            Sécurité: {security}
+        <div>
+            <input type="checkbox" checked={checked} onChange={setChecked} />
+            <hr />
+            <button onClick={increment}>+</button>
+            <span>{count}</span>
+            <button onClick={decrement}>-</button>
+            {checked && (
+                <>
+                    <hr />
+                    <Input value={title} onChange={setTitle} label="Title" />
+                </>
+            )}
+            <hr />
+            <div className="container my-2">
+                {loading && (
+                    <div className="spinner-border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                )}
+                {errors && <div className="alert alert-danger">{errors.toString()}</div>}
+                {data && (
+                    <div>
+                        <ul>
+                            {data.map((post) => (
+                                <li key={post.id}>{post.title}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+            </div>
         </div>
     );
-}
-
-function passwordSecurity(password) {
-    // Fake latency
-    let startTime = performance.now();
-    while (performance.now() - startTime < 200) {}
-
-    if (password.length < 3) {
-        return 'Faible';
-    } else if (password.length < 6) {
-        return 'Moyen';
-    }
-
-    return 'Fort';
 }
 
 export default App;
