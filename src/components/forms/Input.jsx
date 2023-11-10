@@ -1,6 +1,6 @@
-import { useId } from 'react';
+import { forwardRef, useId } from 'react';
 
-export function Input({ placeholder, value, onChange, label }) {
+export const Input = forwardRef(({ placeholder, value, onChange, label }, ref) => {
     const id = useId();
 
     return (
@@ -9,6 +9,7 @@ export function Input({ placeholder, value, onChange, label }) {
                 {label}
             </label>
             <input
+                ref={ref}
                 id={id}
                 className="form-control"
                 value={value}
@@ -17,4 +18,7 @@ export function Input({ placeholder, value, onChange, label }) {
             />
         </div>
     );
-}
+});
+
+// use to have component name inside devtools
+Input.displayName = 'Input';

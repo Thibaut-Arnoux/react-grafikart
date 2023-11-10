@@ -1,38 +1,33 @@
-import { useState, useMemo } from 'react';
+// import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Input } from './components/forms/Input';
 
 function App() {
-    const [firstname, setFirstname] = useState('John');
-    const [password, setPassword] = useState('MotdePasse');
-    const random = useMemo(() => {
-        return Math.random();
+    const prefixRef = useRef(null);
+    const [prefix, setPrefix] = useState('');
+    prefixRef.current = prefix;
+
+    const inputRef = useRef(null);
+    console.log(inputRef);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            console.log(prefixRef.current);
+        }, 1000);
+
+        return () => {
+            clearInterval(timer);
+        };
     }, []);
-    const security = useMemo(() => {
-        return passwordSecurity(password);
-    }, [password]);
 
     return (
-        <div className="container my-v3 vstack gap-2">
-            Random : {random}
-            <Input label="Nom d'utilisateur" value={firstname} onChange={setFirstname} />
-            <Input label="Password" value={password} onChange={setPassword} />
-            Sécurité: {security}
+        <div>
+            <Input ref={inputRef} placeholder="prefix" value={prefix} onChange={setPrefix} />
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Sint consequatur at beatae qui
+            accusamus, rem ullam porro voluptas consequuntur fugit harum cumque voluptate numquam
+            dolorem quisquam aut libero dicta nobis!
         </div>
     );
-}
-
-function passwordSecurity(password) {
-    // Fake latency
-    let startTime = performance.now();
-    while (performance.now() - startTime < 200) {}
-
-    if (password.length < 3) {
-        return 'Faible';
-    } else if (password.length < 6) {
-        return 'Moyen';
-    }
-
-    return 'Fort';
 }
 
 export default App;
