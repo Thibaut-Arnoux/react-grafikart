@@ -1,38 +1,42 @@
-import { useState, Suspense, lazy } from 'react';
-import Loading from './components/lazy/Loading.jsx';
-
-const MarkdownPreview = lazy(() => delayForDemo(import('./components/lazy/MarkdownPreview.jsx')));
+import { useRef } from 'react';
+import { Input } from './components/forms/Input';
+import { useTodos } from './hooks/useTodos';
 
 function App() {
-    const [showPreview, setShowPreview] = useState(false);
-    const [markdown, setMarkdown] = useState('Hello, **world**!');
+    const inputTodo = useRef(null);
+    const { todos, addTodo, toggleTodo, removeTodo, removeCompletedTodo } = useTodos();
+
     return (
         <>
-            <textarea value={markdown} onChange={(e) => setMarkdown(e.target.value)} />
-            <label>
-                <input
-                    type="checkbox"
-                    checked={showPreview}
-                    onChange={(e) => setShowPreview(e.target.checked)}
-                />
-                Show preview
-            </label>
+            <Input ref={inputTodo} placeholder="Ajouter une tâche" />
+            <button
+                onClick={() => {
+                    addTodo({
+                        name: inputTodo.current.value,
+                        checked: false
+                    });
+                    inputTodo.current.value = null;
+                }}
+            >
+                Ajouter
+            </button>
             <hr />
-            {showPreview && (
-                <Suspense fallback={<Loading />}>
-                    <h2>Preview</h2>
-                    <MarkdownPreview markdown={markdown} />
-                </Suspense>
-            )}
+            <ul>
+                {todos.map((todo) => (
+                    <li key={todo.name}>
+                        <input
+                            type="checkbox"
+                            checked={todo.checked}
+                            onChange={() => toggleTodo(todo)}
+                        />
+                        {todo.name}
+                        <button onClick={() => removeTodo(todo)}>Supprimer</button>
+                    </li>
+                ))}
+            </ul>
+            <button onClick={removeCompletedTodo}>Supprimer les tâches accomplies</button>
         </>
     );
-}
-
-// Add a fixed delay so you can see the loading state
-function delayForDemo(promise) {
-    return new Promise((resolve) => {
-        setTimeout(resolve, 2000);
-    }).then(() => promise);
 }
 
 export default App;

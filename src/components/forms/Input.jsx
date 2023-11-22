@@ -14,7 +14,7 @@ export const Input = forwardRef(({ placeholder, value, onChange, label }, ref) =
                 className="form-control"
                 value={value}
                 placeholder={placeholder}
-                onChange={(e) => onChange(e.target.value)}
+                onChange={(e) => (onChange ? onChange(e.target.value) : null)}
             />
         </div>
     );
