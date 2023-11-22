@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { ErrorBoundary } from 'react-error-boundary';
 
 function App() {
     return (
@@ -27,6 +29,15 @@ function App() {
                 dolor sed expedita, sequi consequuntur cumque ea?
             </p>
             <Modal />
+
+            <ErrorBoundary
+                FallbackComponent={AlertError}
+                onReset={() => {
+                    console.log('error');
+                }}
+            >
+                <Example />
+            </ErrorBoundary>
         </div>
     );
 }
@@ -46,6 +57,25 @@ function Modal() {
             Je suis une modal
         </div>,
         document.body
+    );
+}
+
+function Example() {
+    useEffect(() => {
+        throw new Error('Error to mount Example component');
+    });
+
+    return <div>Example component</div>;
+}
+
+function AlertError({ error, resetErrorBoundary }) {
+    return (
+        <div className="alert alert-danger">
+            {error.message}
+            <button className="btn btn-secondary" onClick={resetErrorBoundary}>
+                Reset
+            </button>
+        </div>
     );
 }
 
