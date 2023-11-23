@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { Input } from './components/forms/Input';
 import { useTodos } from './hooks/useTodos';
+import { ThemeSwitcher } from './components/buttons/ThemeSwitcher';
 
 function App() {
     const inputTodo = useRef(null);
@@ -8,6 +9,7 @@ function App() {
 
     return (
         <>
+            <ThemeSwitcher />
             <Input ref={inputTodo} placeholder="Ajouter une tâche" />
             <button
                 onClick={() => {
