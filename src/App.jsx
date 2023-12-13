@@ -1,43 +1,96 @@
-import { useRef } from 'react';
-import { Input } from './components/forms/Input';
-import { useTodos } from './hooks/useTodos';
-import { ThemeSwitcher } from './components/buttons/ThemeSwitcher';
+import {
+    NavLink,
+    Outlet,
+    RouterProvider,
+    createBrowserRouter,
+    defer,
+    useRouteError
+} from 'react-router-dom';
+import { ThemeContextProvider } from './hooks/useTheme.jsx';
+import { Single } from './pages/Single.jsx';
+import { Blog } from './pages/Blog.jsx';
 
-function App() {
-    const inputTodo = useRef(null);
-    const { todos, addTodo, toggleTodo, removeTodo, removeCompletedTodo } = useTodos();
+const router = createBrowserRouter([
+    {
+        path: '/',
+        element: <Root />,
+        errorElement: <PageError />,
+        children: [
+            {
+                path: '',
+                element: <div>Home</div>
+            },
+            {
+                path: 'blog',
+                element: (
+                    <div className="row">
+                        <aside className="col-3">
+                            <h2>Sidebar</h2>
+                        </aside>
+                        <main className="col-9">
+                            <Outlet />
+                        </main>
+                    </div>
+                ),
+                children: [
+                    {
+                        path: '',
+                        element: <Blog />,
+                        loader: () => {
+                            const posts = fetch(
+                                'https://jsonplaceholder.typicode.com/posts?_limit=10'
+                            ).then((r) => r.json());
+
+                            return defer({ posts });
+                        }
+                    },
+                    {
+                        path: ':id',
+                        element: <Single />
+                    }
+                ]
+            },
+            {
+                path: 'contact',
+                element: <div>Contact</div>
+            }
+        ]
+    }
+]);
+
+function Root() {
+    return (
+        <>
+            <header>
+                <nav>
+                    <NavLink to="/">Home</NavLink>
+                    <NavLink to="/blog">Blog</NavLink>
+                    <NavLink to="/contact">Contact</NavLink>
+                </nav>
+            </header>
+            <div className="container my-4">
+                <Outlet />
+            </div>
+        </>
+    );
+}
+
+function PageError() {
+    const error = useRouteError();
 
     return (
         <>
-            <ThemeSwitcher />
-            <Input ref={inputTodo} placeholder="Ajouter une tâche" />
-            <button
-                onClick={() => {
-                    addTodo({
-                        name: inputTodo.current.value,
-                        checked: false
-                    });
-                    inputTodo.current.value = null;
-                }}
-            >
-                Ajouter
-            </button>
-            <hr />
-            <ul>
-                {todos.map((todo) => (
-                    <li key={todo.name}>
-                        <input
-                            type="checkbox"
-                            checked={todo.checked}
-                            onChange={() => toggleTodo(todo)}
-                        />
-                        {todo.name}
-                        <button onClick={() => removeTodo(todo)}>Supprimer</button>
-                    </li>
-                ))}
-            </ul>
-            <button onClick={removeCompletedTodo}>Supprimer les tâches accomplies</button>
+            <h1>Une erreur est survenue</h1>
+            <p>{error?.error?.toString() ?? error?.toString()}</p>
         </>
+    );
+}
+
+function App() {
+    return (
+        <ThemeContextProvider>
+            <RouterProvider router={router} />
+        </ThemeContextProvider>
     );
 }
 
